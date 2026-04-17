@@ -1,4 +1,4 @@
-
+using Tekwill.Library.Infrastructure.Extensions;
 namespace Tekwill.Library
 {
     public class Program
@@ -13,6 +13,7 @@ namespace Tekwill.Library
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.ConfigureEfCore(builder.Configuration);
 
             var app = builder.Build();
 
