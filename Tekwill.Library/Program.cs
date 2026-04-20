@@ -14,6 +14,8 @@ namespace Tekwill.Library
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.ConfigureEfCore(builder.Configuration);
+            builder.Services.ConfigureRepositories();
+            builder.Services.ConfigureAutoMapper();
 
             var app = builder.Build();
 
