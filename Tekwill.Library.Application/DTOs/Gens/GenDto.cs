@@ -1,8 +1,7 @@
 ﻿namespace Tekwill.Library.Application.DTOs.Gens
 {
-    public class GenDto
+    public class GenDto : CreateGenDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
     }
 }

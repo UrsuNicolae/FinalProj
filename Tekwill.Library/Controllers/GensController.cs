@@ -28,8 +28,28 @@ public class GensController : ControllerBase
     {
         var gens = await genRepository.GetGens(page, pageSize, ct);
 
-        return new PaginatedList<GenDto>(mapper.Map<List<GenDto>>(gens.Items),
+        return Ok(new PaginatedList<GenDto>(mapper.Map<List<GenDto>>(gens.Items),
             page,
-            gens.TotalPages);
+            gens.TotalPages));
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<GenDto>> Get(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            var gen = await genRepository.GetGen(id, ct);
+            return Ok(mapper.Map<GenDto>(gen));
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPut()]
+    public async Task<ActionResult<GenDto>> Create(CreateGenDto dto, CancellationToken ct = default)
+    {
+        return Ok();
     }
 }
