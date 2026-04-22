@@ -1,7 +1,10 @@
 using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Tekwill.Library.Application.Common;
 using Tekwill.Library.Application.DTOs.Gens;
 using Tekwill.Library.Application.Profiles;
@@ -80,6 +83,46 @@ namespace Tekwill.Library.Tests.API
             Assert.Equal(404, notFound.StatusCode);
         }
 
+        [Fact]
+        public async Task CreateShouldReturnBadRequestForInvalidGen()
+        {
+            using var libContext = CreateContext();
+            var validator = new Mock<IValidator<CreateGenDto>>();
+            var validationResult = new ValidationResult(new List<ValidationFailure> { new ValidationFailure(nameof(CreateGenDto.Name), "Invalid name")});
+            validator.Setup(s => s.ValidateAsync(It.IsAny<CreateGenDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult);
+            var controller = CreateController(libContext, validator);
+            var genToCreate = new CreateGenDto
+            {
+                Name = "Invalid Name"
+            };
+
+            var result = await controller.Create(genToCreate);
+
+            var badResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal(400, badResult.StatusCode);
+        }
+        [Fact]
+        public async Task CreateShouldPersistGenInDbIfGenIsValid()
+        {
+            using var libContext = CreateContext();
+            var validator = new Mock<IValidator<CreateGenDto>>();
+            var validationResult = new ValidationResult(new List<ValidationFailure> ());
+            validator.Setup(s => s.ValidateAsync(It.IsAny<CreateGenDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult);
+            var controller = CreateController(libContext, validator);
+            var genToCreate = new CreateGenDto
+            {
+                Name = "Valid Name"
+            };
+
+            var result = await controller.Create(genToCreate);
+
+            var okResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
+            Assert.Equal(201, okResult.StatusCode);
+            var createdGen = Assert.IsType<GenDto>(okResult.Value);
+            Assert.Equal(genToCreate.Name, createdGen.Name);
+            Assert.True(createdGen.Id > 0);
+        }
+
         private static LibraryContext CreateContext()
         {
             var options = new DbContextOptionsBuilder<LibraryContext>()
@@ -88,13 +131,16 @@ namespace Tekwill.Library.Tests.API
             return new LibraryContext(options);
         }
 
-        private static GensController CreateController(LibraryContext libContext)
+        private static GensController CreateController(LibraryContext libContext,
+            Mock<IValidator<CreateGenDto>>? validator = null)
         {
             var mapper = new MapperConfiguration(cfg => cfg.AddProfile<GenProfile>()).CreateMapper();
+            var moqValidator = validator ?? new Mock<IValidator<CreateGenDto>>();
             return new GensController(
                 NullLogger<GensController>.Instance,
                 new GenRepository(libContext),
-                mapper);
+                mapper,
+                moqValidator.Object);
         }
     }
 }

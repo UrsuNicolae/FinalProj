@@ -15,10 +15,11 @@ namespace Tekwill.Library.Infrastructure.Persistance
             this.context = context;
         }
 
-        public async Task CreateGen(Gen gen, CancellationToken ct = default)
+        public async Task<Gen> CreateGen(Gen gen, CancellationToken ct = default)
         {
             await context.Gens.AddAsync(gen, ct);
             await context.SaveChangesAsync(ct);
+            return gen;
         }
 
         public async Task DeleteGen(int id, CancellationToken ct = default)

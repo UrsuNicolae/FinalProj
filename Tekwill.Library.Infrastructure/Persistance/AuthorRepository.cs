@@ -15,10 +15,11 @@ namespace Tekwill.Library.Infrastructure.Persistance
         {
             this.context = context;
         }
-        public async Task CreateAuthor(Author author, CancellationToken ct = default)
+        public async Task<Author> CreateAuthor(Author author, CancellationToken ct = default)
         {
             await context.Authors.AddAsync(author, ct);
             await context.SaveChangesAsync(ct);
+            return author;
         }
 
         public async Task DeleteAuthor(int id, CancellationToken ct = default)

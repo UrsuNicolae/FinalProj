@@ -9,7 +9,7 @@ namespace Tekwill.Library.Application.Interfaces
         Task<PaginatedList<Book>> GetBooks(int page, int pageSize, CancellationToken ct = default);
         Task<Book> GetBook(int id, CancellationToken ct = default);
 
-        Task CreateBook(Book book, CancellationToken ct = default);
+        Task<Book> CreateBook(Book book, CancellationToken ct = default);
         Task UpdateBook(Book book, CancellationToken ct = default);
         Task DeleteBook(int id, CancellationToken ct = default);
     }

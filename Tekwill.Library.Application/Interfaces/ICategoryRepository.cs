@@ -8,7 +8,7 @@ namespace Tekwill.Library.Application.Interfaces
         Task<PaginatedList<Category>> GetCategories(int page, int pageSize, CancellationToken ct = default);
         Task<Category> GetCategory(int id, CancellationToken ct = default);
 
-        Task CreateCategory(Category category, CancellationToken ct = default);
+        Task<Category> CreateCategory(Category category, CancellationToken ct = default);
         Task UpdateCategory(Category category, CancellationToken ct = default);
         Task DeleteCategory(int id, CancellationToken ct = default);
     }

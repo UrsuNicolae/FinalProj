@@ -16,10 +16,11 @@ namespace Tekwill.Library.Infrastructure.Persistance
             this.context = libraryContext;
         }
 
-        public async Task CreateCategory(Category category, CancellationToken ct = default)
+        public async Task<Category> CreateCategory(Category category, CancellationToken ct = default)
         {
             await context.Categories.AddAsync(category, ct);
             await context.SaveChangesAsync(ct);
+            return category;
         }
 
         public async Task DeleteCategory(int id, CancellationToken ct = default)

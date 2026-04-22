@@ -9,6 +9,7 @@ namespace Tekwill.Library.Application.Profiles
         public CategoryProfile()
         {
             CreateMap<Category, CategoryDto>().ReverseMap();
+            CreateMap<CreateCategoryDto, Category>().ReverseMap();
         }
     }
 }

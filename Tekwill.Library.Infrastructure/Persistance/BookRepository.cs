@@ -15,10 +15,11 @@ namespace Tekwill.Library.Infrastructure.Persistance
             this.context = context;
         }
 
-        public async Task CreateBook(Book book, CancellationToken ct = default)
+        public async Task<Book> CreateBook(Book book, CancellationToken ct = default)
         {
             await context.Books.AddAsync(book, ct);
             await context.SaveChangesAsync(ct);
+            return book;
         }
 
         public async Task DeleteBook(int id, CancellationToken ct = default)

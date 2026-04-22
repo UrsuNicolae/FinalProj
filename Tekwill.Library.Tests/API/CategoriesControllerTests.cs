@@ -1,7 +1,9 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Tekwill.Library.Application.Common;
 using Tekwill.Library.Application.DTOs.Categories;
 using Tekwill.Library.Application.Profiles;
@@ -90,11 +92,13 @@ namespace Tekwill.Library.Tests.API
 
         private static CategoriesController CreateController(LibraryContext libContext)
         {
+            var mocValidator = new Mock<IValidator<CreateCategoryDto>>();
             var mapper = new MapperConfiguration(cfg => cfg.AddProfile<CategoryProfile>()).CreateMapper();
             return new CategoriesController(
                 NullLogger<CategoriesController>.Instance,
                 new CategoryRepository(libContext),
-                mapper);
+                mapper,
+                mocValidator.Object);
         }
     }
 }

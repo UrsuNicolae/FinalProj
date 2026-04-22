@@ -9,6 +9,7 @@ namespace Tekwill.Library.Application.Profiles
         public GenProfile()
         {
             CreateMap<Gen, GenDto>().ReverseMap();
+            CreateMap<CreateGenDto, Gen>().ReverseMap();
         }
     }
 }

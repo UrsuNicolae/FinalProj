@@ -1,4 +1,5 @@
 using Tekwill.Library.Infrastructure.Extensions;
+using Tekwill.Library.Midllewares;
 namespace Tekwill.Library
 {
     public class Program
@@ -16,6 +17,7 @@ namespace Tekwill.Library
             builder.Services.ConfigureEfCore(builder.Configuration);
             builder.Services.ConfigureRepositories();
             builder.Services.ConfigureAutoMapper();
+            builder.Services.ConfigureFluentValidators();
 
             var app = builder.Build();
 
@@ -26,6 +28,7 @@ namespace Tekwill.Library
                 app.UseSwaggerUI();
             }
 
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

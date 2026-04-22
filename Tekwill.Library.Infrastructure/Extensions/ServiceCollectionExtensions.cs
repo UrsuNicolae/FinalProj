@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation.AspNetCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tekwill.Library.Application.DTOs.Categories;
+using Tekwill.Library.Application.DTOs.Gens;
 using Tekwill.Library.Application.Interfaces;
 using Tekwill.Library.Application.Profiles;
 using Tekwill.Library.Infrastructure.Data;
@@ -31,6 +34,12 @@ namespace Tekwill.Library.Infrastructure.Extensions
         public static IServiceCollection ConfigureAutoMapper(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(GenProfile).Assembly);
+            return services;
+        }
+
+        public static IServiceCollection ConfigureFluentValidators(this IServiceCollection services)
+        {
+            services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(typeof(CreateGenDtoValidator).Assembly));
             return services;
         }
     }
