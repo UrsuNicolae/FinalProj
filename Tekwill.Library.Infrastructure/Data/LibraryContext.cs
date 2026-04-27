@@ -10,6 +10,7 @@ namespace Tekwill.Library.Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Gen> Gens { get; set; }
         public DbSet<AuthorGen> AuthorGens { get; set; }
+        public DbSet<User> Users { get; set; }
         public LibraryContext(DbContextOptions<LibraryContext> options) : base(options)
         {
         }

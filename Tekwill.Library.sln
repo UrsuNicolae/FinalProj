@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99 d17.13
+VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tekwill.Library", "Tekwill.Library\Tekwill.Library.csproj", "{A6777B96-5B6A-4A1B-8A0E-BEAA4C7D0FB1}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tekwill.Library.Infrastructure", "Tekwill.Library.Infrastructure\Tekwill.Library.Infrastructure.csproj", "{5A6AF77E-6F65-4FCD-8F18-F62841122F75}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tekwill.Library.Tests", "Tekwill.Library.Tests\Tekwill.Library.Tests.csproj", "{EBF689FE-654F-4E8D-88BF-B26F440F2DE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library.Auth", "Library.Auth\Library.Auth.csproj", "{F6C3CADE-AB72-428B-8B84-252CF612BAE1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{EBF689FE-654F-4E8D-88BF-B26F440F2DE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBF689FE-654F-4E8D-88BF-B26F440F2DE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBF689FE-654F-4E8D-88BF-B26F440F2DE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6C3CADE-AB72-428B-8B84-252CF612BAE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6C3CADE-AB72-428B-8B84-252CF612BAE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6C3CADE-AB72-428B-8B84-252CF612BAE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6C3CADE-AB72-428B-8B84-252CF612BAE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

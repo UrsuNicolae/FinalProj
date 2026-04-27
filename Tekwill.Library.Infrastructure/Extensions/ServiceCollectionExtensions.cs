@@ -6,7 +6,9 @@ using Tekwill.Library.Application.DTOs.Categories;
 using Tekwill.Library.Application.DTOs.Gens;
 using Tekwill.Library.Application.Interfaces;
 using Tekwill.Library.Application.Profiles;
+using Tekwill.Library.Infrastructure.Configuration;
 using Tekwill.Library.Infrastructure.Data;
+using Tekwill.Library.Infrastructure.Implementations;
 using Tekwill.Library.Infrastructure.Persistance;
 
 namespace Tekwill.Library.Infrastructure.Extensions
@@ -28,6 +30,7 @@ namespace Tekwill.Library.Infrastructure.Extensions
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             return services;
         }
 
@@ -40,6 +43,17 @@ namespace Tekwill.Library.Infrastructure.Extensions
         public static IServiceCollection ConfigureFluentValidators(this IServiceCollection services)
         {
             services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(typeof(CreateGenDtoValidator).Assembly));
+            return services;
+        }
+
+        public static IServiceCollection ConfigureAuthServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddScoped<IGoogleService, GoogleService>();
+            services.Configure<GoogleConfiguration>(configuration.GetSection(GoogleConfiguration.SectionName));
+            services.AddHttpClient<IGoogleService, GoogleService>(client =>
+            {
+                client.BaseAddress = new Uri(configuration[$"{GoogleConfiguration.SectionName}:TokenUrl"]);
+            });
             return services;
         }
     }
