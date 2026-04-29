@@ -14,14 +14,17 @@ namespace Library.Auth.Controllers
         private readonly IUserRepository userRepository;
         private readonly IGoogleService googleService;
         private readonly IOptions<GoogleConfiguration> googleConfiguration;
+        private readonly IJwtTokenGenerator jwtTokenGenerator;
 
         public AuthController(IUserRepository userRepository,
             IGoogleService googleService,
-            IOptions<GoogleConfiguration> googleConfiguration)
+            IOptions<GoogleConfiguration> googleConfiguration,
+            IJwtTokenGenerator jwtTokenGenerator)
         {
             this.userRepository = userRepository;
             this.googleService = googleService;
             this.googleConfiguration = googleConfiguration;
+            this.jwtTokenGenerator = jwtTokenGenerator;
         }
 
         [HttpGet]
@@ -50,8 +53,8 @@ namespace Library.Auth.Controllers
                 };
                 await userRepository.CreateUser(user, ct);
             }
-            //var token = jw
-            return Ok();
+            var token = jwtTokenGenerator.GenerateToken(user);
+            return Ok(token);
         }
     }
 }

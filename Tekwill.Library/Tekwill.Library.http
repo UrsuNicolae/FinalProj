@@ -1,6 +1,7 @@
-@Tekwill.Library_HostAddress = http://localhost:5035
+@Tekwill.Library_HostAddress = https://localhost:7187
 
-GET {{Tekwill.Library_HostAddress}}/weatherforecast/
+GET {{Tekwill.Library_HostAddress}}/Authors?page=1&pageSize=1
 Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJuaWNvbGFlLnVyc3UyNDBAZ21haWwuY29tIiwianRpIjoiNGY2MDNiODUtYmIyOS00NGQwLWIyOGEtNzA5YzZlYjkzYjY3IiwiZXhwIjoxNzc3NDgzOTc5LCJpc3MiOiJUZWt3aWxsIEF1dGggQXBpIiwiYXVkIjoiVGV3aWxsIn0.lCzxJLg-VrlDeYNZhWnlSY-AqDWVjF0JQ0pv9bc6lm0
 
 ###

@@ -1,7 +1,10 @@
 ﻿using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Tekwill.Library.Application.DTOs.Categories;
 using Tekwill.Library.Application.DTOs.Gens;
 using Tekwill.Library.Application.Interfaces;
@@ -40,6 +43,25 @@ namespace Tekwill.Library.Infrastructure.Extensions
             return services;
         }
 
+        public static IServiceCollection ConfigureJwtAuth(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+             .AddJwtBearer(options =>
+             {
+                 options.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuer = true,
+                     ValidateAudience = true,
+                     ValidateLifetime = true,
+                     ValidateIssuerSigningKey = true,
+                     ValidIssuer = configuration["JwtSettings:Issuer"],
+                     ValidAudience = configuration["JwtSettings:Audience"],
+                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]))
+                 };
+             });
+            return services;
+        }
+
         public static IServiceCollection ConfigureFluentValidators(this IServiceCollection services)
         {
             services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(typeof(CreateGenDtoValidator).Assembly));
@@ -49,6 +71,7 @@ namespace Tekwill.Library.Infrastructure.Extensions
         public static IServiceCollection ConfigureAuthServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IGoogleService, GoogleService>();
+            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.Configure<GoogleConfiguration>(configuration.GetSection(GoogleConfiguration.SectionName));
             services.AddHttpClient<IGoogleService, GoogleService>(client =>
             {

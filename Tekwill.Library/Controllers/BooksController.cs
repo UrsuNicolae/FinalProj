@@ -1,17 +1,17 @@
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tekwill.Library.Application.Common;
 using Tekwill.Library.Application.DTOs.Books;
-using Tekwill.Library.Application.DTOs.Books;
 using Tekwill.Library.Application.Interfaces;
 using Tekwill.Library.Domain.Entities;
-using Tekwill.Library.Infrastructure.Persistance;
 
 namespace Tekwill.Library.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class BooksController : ControllerBase
 {
 
@@ -30,6 +30,7 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
+
     public async Task<ActionResult<PaginatedList<BookDto>>> Get(int page, int pageSize, CancellationToken ct = default)
     {
         var books = await bookRepository.GetBooks(page, pageSize, ct);

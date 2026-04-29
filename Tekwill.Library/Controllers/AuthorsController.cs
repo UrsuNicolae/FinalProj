@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tekwill.Library.Application.Common;
 using Tekwill.Library.Application.DTOs.Authors;
@@ -10,6 +11,7 @@ namespace Tekwill.Library.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class AuthorsController : ControllerBase
 {
 
