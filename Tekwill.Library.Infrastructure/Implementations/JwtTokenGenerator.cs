@@ -6,7 +6,7 @@ using System.Text;
 using Tekwill.Library.Application.Interfaces;
 using Tekwill.Library.Domain.Entities;
 
-namespace Tekwill.Library.Infrastructure
+namespace Tekwill.Library.Infrastructure.Implementations
 {
     public class JwtTokenGenerator : IJwtTokenGenerator
     {
