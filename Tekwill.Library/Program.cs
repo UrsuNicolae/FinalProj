@@ -36,6 +36,21 @@ namespace Tekwill.Library
                     }
                 };
                 c.AddSecurityDefinition("Bearer", securityScheme);
+
+                var appheader = new OpenApiSecurityScheme
+                {
+                    Name = "x-app-name",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Description = "Set value of one configured app names",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "AppHeader"
+                    }
+                };
+                c.AddSecurityDefinition("AppHeader", appheader);
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -48,6 +63,17 @@ namespace Tekwill.Library
                             }
                         },
                         Array.Empty<string>()
+                    },
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "AppHeader"
+                            }
+                        },
+                        Array.Empty<string>()
                     }
                 });
                 
@@ -56,7 +82,7 @@ namespace Tekwill.Library
             builder.Services.ConfigureRepositories();
             builder.Services.ConfigureAutoMapper();
             builder.Services.ConfigureFluentValidators();
-            builder.Services.ConfigureJwtAuth(builder.Configuration);
+            builder.Services.ConfigureAuthSchemas(builder.Configuration);
 
             var app = builder.Build();
 

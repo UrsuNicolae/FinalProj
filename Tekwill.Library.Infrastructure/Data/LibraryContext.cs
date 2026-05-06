@@ -11,6 +11,9 @@ namespace Tekwill.Library.Infrastructure.Data
         public DbSet<Gen> Gens { get; set; }
         public DbSet<AuthorGen> AuthorGens { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<ChatNotification> ChatNotifications { get; set; }
         public LibraryContext(DbContextOptions<LibraryContext> options) : base(options)
         {
         }

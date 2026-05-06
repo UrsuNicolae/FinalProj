@@ -11,6 +11,7 @@ using Tekwill.Library.Application.Interfaces;
 using Tekwill.Library.Application.Profiles;
 using Tekwill.Library.Infrastructure.Configuration;
 using Tekwill.Library.Infrastructure.Data;
+using Tekwill.Library.Infrastructure.Handlers.Authentication;
 using Tekwill.Library.Infrastructure.Implementations;
 using Tekwill.Library.Infrastructure.Persistance;
 
@@ -37,28 +38,53 @@ namespace Tekwill.Library.Infrastructure.Extensions
             return services;
         }
 
+        public static IServiceCollection ConfigureBotRepositories(this IServiceCollection services)
+        {
+            services.AddScoped<IChatRepository, ChatRepository>();
+            return services;
+        }
+
         public static IServiceCollection ConfigureAutoMapper(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(GenProfile).Assembly);
             return services;
         }
 
-        public static IServiceCollection ConfigureJwtAuth(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConfigureAuthSchemas(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-             .AddJwtBearer(options =>
-             {
-                 options.TokenValidationParameters = new TokenValidationParameters
-                 {
-                     ValidateIssuer = true,
-                     ValidateAudience = true,
-                     ValidateLifetime = true,
-                     ValidateIssuerSigningKey = true,
-                     ValidIssuer = configuration["JwtSettings:Issuer"],
-                     ValidAudience = configuration["JwtSettings:Audience"],
-                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]))
-                 };
-             });
+            services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = "Multi";
+                o.DefaultChallengeScheme = "Multi";
+            })
+            .AddPolicyScheme("Multi", "Multi", o =>
+            {
+                o.ForwardDefaultSelector = ctx =>
+                {
+                    if (ctx.Request.Headers.ContainsKey("x-app-name"))
+                    {
+                        return "AppHeader";
+                    }
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["JwtSettings:Issuer"],
+                    ValidAudience = configuration["JwtSettings:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]))
+                };
+            })
+            .AddScheme<AppHeaderAuthOptions, AppHeaderAuthHandler>("AppHeader", o =>
+               {
+                   o.AllowedNames = configuration.GetSection("AppHeaderAuth:AllowedNames").Get<string[]>() ?? Array.Empty<string>();
+               });
             return services;
         }
 
