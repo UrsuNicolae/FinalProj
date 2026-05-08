@@ -1,4 +1,6 @@
-﻿namespace Tekwill.Library.Application.Common
+﻿using System.Text;
+
+namespace Tekwill.Library.Application.Common
 {
     public class PaginatedList<T>
     {
@@ -14,6 +16,22 @@
             Items = items;
             PageIndex = pageIndex;
             TotalPages = totalPages;
+        }
+
+        public override string ToString()
+        {
+            var text = new StringBuilder($"PageNumber: {PageIndex} \n" +
+                $"HasPrevious: {HasPreviousPage} \n" +
+                $"HasNext: {HasNextPage}\n" +
+                $"Total: {TotalPages}\n" +
+                $"--------------------\n");
+            foreach(var item in Items)
+            {
+                text.Append(item?.ToString());
+                text.Append("\n");
+                text.Append("--------------------\n");
+            }
+            return text.ToString();
         }
     }
 }

@@ -23,6 +23,7 @@ namespace LibraryBot
             {
                 c.BaseAddress = new Uri(builder.Configuration["LibraryApi:BaseAddress"]);
                 c.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                c.DefaultRequestHeaders.Add("x-app-name", builder.Configuration["LibraryApi:AppName"]);
             });
 
             builder.Services.AddScoped<ILibraryApiClient, LibraryApiClient>();

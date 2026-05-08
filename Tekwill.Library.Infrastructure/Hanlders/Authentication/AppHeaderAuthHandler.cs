@@ -25,7 +25,7 @@ namespace Tekwill.Library.Infrastructure.Handlers.Authentication
             {
                 return Task.FromResult(AuthenticateResult.Fail("Missing x-app-name"));
             }
-            if (Options.AllowedNames.Contains(name, StringComparer.Ordinal))
+            if (!Options.AllowedNames.Contains(name, StringComparer.Ordinal))
             {
                 return Task.FromResult(AuthenticateResult.Fail("Invalid x-app-name"));
             }

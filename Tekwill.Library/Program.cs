@@ -41,7 +41,7 @@ namespace Tekwill.Library
                 {
                     Name = "x-app-name",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
+                    Type = SecuritySchemeType.ApiKey,
                     Description = "Set value of one configured app names",
                     Reference = new OpenApiReference
                     {
