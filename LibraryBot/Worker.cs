@@ -1,12 +1,18 @@
 using FluentValidation.Internal;
 using LibraryBot.Helper;
 using LibraryBot.Interfaces;
+using System.Text;
+using Tekwill.Library.Application.Common;
+using Tekwill.Library.Application.DTOs.Authors;
+using Tekwill.Library.Application.DTOs.Books;
+using Tekwill.Library.Application.DTOs.Categories;
 using Tekwill.Library.Application.Interfaces;
 using Tekwill.Library.Domain.Entities;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LibraryBot
 {
@@ -37,6 +43,12 @@ namespace LibraryBot
 
         private async Task HandleUpdate(ITelegramBotClient bot, Update update, CancellationToken ct)
         {
+            if (update.Type == UpdateType.CallbackQuery)
+            {
+                await HandleCallback(bot, update.CallbackQuery, ct);
+                return;
+            }
+
             var chatId = update.Message.Chat.Id;
             var text = update.Message.Text;
 
@@ -64,7 +76,7 @@ namespace LibraryBot
                             chatId: chatId,
                             text: LibraryBot.Helper.MessageFormatter.GetWelcomeMessage(),
                             parseMode: ParseMode.MarkdownV2,
-                            //replyMarkup: 
+                            replyMarkup: GetMainMenuKeyboard(),
                             cancellationToken: ct
                             );
                         break;
@@ -348,6 +360,143 @@ namespace LibraryBot
                                 cancellationToken: ct);
                     break;
             }
+        }
+
+        private async Task HandleCallback(ITelegramBotClient bot, CallbackQuery callbackQuery, CancellationToken ct)
+        {
+            var data = callbackQuery.Data;
+            var chatId = callbackQuery.Message.Chat.Id;
+
+            if (data == "main_menu")
+            {
+                await bot.EditMessageText(
+                    chatId: chatId,
+                    messageId: callbackQuery.Message.MessageId,
+                    text: LibraryBot.Helper.MessageFormatter.GetWelcomeMessage(),
+                    parseMode: ParseMode.MarkdownV2,
+                    replyMarkup: GetMainMenuKeyboard(),
+                    cancellationToken: ct);
+                await bot.AnswerCallbackQuery(callbackQuery.Id, cancellationToken: ct);
+                return;
+            }
+            if (data.StartsWith("books_") || data.StartsWith("authors_") || data.StartsWith("categories_"))
+            {
+                using var scope = scopeFactory.CreateAsyncScope();
+                var parts = data.Split("_");
+                var type = parts[0];
+                var pageSize = int.Parse(parts[1]);
+                var pageIndex = int.Parse(parts[2]);
+                var libApiClient = scope.ServiceProvider.GetRequiredService<ILibraryApiClient>();
+                switch (type)
+                {
+                    case "books":
+                        var books = await libApiClient.GetPaginatedBooks(pageSize, pageIndex, ct);
+                        await bot.EditMessageText(
+                            chatId: chatId,
+                            messageId: callbackQuery.Message.MessageId,
+                            text: FormatPaginatedBooks(books),
+                            parseMode: ParseMode.MarkdownV2,
+                            replyMarkup: GetPaginatedKeyboard("books", pageSize, pageIndex, books.TotalPages),
+                            cancellationToken: ct
+                            );
+                        break;
+                    case "authors":
+                        var authors = await libApiClient.GetPaginatedAuthors(pageSize, pageIndex, ct);
+                        await bot.EditMessageText(
+                            chatId: chatId,
+                            messageId: callbackQuery.Message.MessageId,
+                            text: FormatPaginatedAuthors(authors),
+                            parseMode: ParseMode.MarkdownV2,
+                            replyMarkup: GetPaginatedKeyboard("authors", pageSize, pageIndex, authors.TotalPages),
+                            cancellationToken: ct
+                            );
+                        break;
+                    case "categories":
+                        var categories = await libApiClient.GetPaginatedCategories(pageSize, pageIndex, ct);
+                        await bot.EditMessageText(
+                            chatId: chatId,
+                            messageId: callbackQuery.Message.MessageId,
+                            text: FormatPaginatedCategories(categories),
+                            parseMode: ParseMode.MarkdownV2,
+                            replyMarkup: GetPaginatedKeyboard("categories", pageSize, pageIndex, categories.TotalPages),
+                            cancellationToken: ct
+                            );
+                        break;
+                }
+            }
+            await bot.AnswerCallbackQuery(callbackQuery.Id, cancellationToken: ct);
+        }
+
+        private InlineKeyboardMarkup GetMainMenuKeyboard()
+        {
+            return new InlineKeyboardMarkup(new[]
+            {
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("📖 Browse Books", "books_10_1"),
+                    InlineKeyboardButton.WithCallbackData("✍️ Browse Authors", "authors_10_1")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("📂 Browse Categories", "categories_10_1")
+                }
+            });
+        }
+
+        private InlineKeyboardMarkup GetPaginatedKeyboard(string type, int pageSize, int currentPage, int totalPages)
+        {
+            var buttons = new List<InlineKeyboardButton[]>();
+            var navigationButtons = new List<InlineKeyboardButton>();
+            if (currentPage > 1)
+            {
+                navigationButtons.Add(InlineKeyboardButton.WithCallbackData("⬅️ Previous", $"{type}_{pageSize}_{currentPage - 1}"));
+            }
+            navigationButtons.Add(InlineKeyboardButton.WithCallbackData($"📄 {currentPage}/{totalPages}", "invalid-command"));
+            if (currentPage < totalPages)
+            {
+                navigationButtons.Add(InlineKeyboardButton.WithCallbackData("Next ➡️", $"{type}_{pageSize}_{currentPage + 1}"));
+            }
+            buttons.Add(navigationButtons.ToArray());
+            buttons.Add(new[] { InlineKeyboardButton.WithCallbackData("🔙 Back to Menu", "main_menu") });
+            return new InlineKeyboardMarkup(buttons);
+        }
+
+        private string FormatPaginatedBooks(PaginatedList<BookDto> paginatedBooks)
+        {
+            var text = new StringBuilder("📚 *Books List*\n\n");
+            foreach (var book in paginatedBooks.Items)
+            {
+                text.Append($"📖    *{book.Title ?? "N/A"}*\n");
+                text.Append($"ID:   *{book.Id}*\n");
+                text.Append($"ISBN: *{book.ISBN}*\n");
+            }
+            text.Append($"\n Page {paginatedBooks.PageIndex} of {paginatedBooks.TotalPages}");
+            return text.ToString();
+        }
+
+        private string FormatPaginatedAuthors(PaginatedList<AuthorDto> paginatedAuthors)
+        {
+            var text = new StringBuilder("✍️ *Authors List*\n\n");
+            foreach (var author in paginatedAuthors.Items)
+            {
+                text.Append($"🧑‍🏫    *{author.FirstName ?? "N/A"} {author.LastName ?? ""}*\n");
+                text.Append($"ID:   *{author.Id}*\n");
+                text.Append($"Books: *{author.Books?.Count() ?? 0}*\n");
+            }
+            text.Append($"\n Page {paginatedAuthors.PageIndex} of {paginatedAuthors.TotalPages}");
+            return text.ToString();
+        }
+
+        private string FormatPaginatedCategories(PaginatedList<CategoryDto> paginatedCategories)
+        {
+            var text = new StringBuilder("📂 *Categories List*\n\n");
+            foreach (var category in paginatedCategories.Items)
+            {
+                text.Append($"📂    *{category.Name ?? "N/A"}*\n");
+                text.Append($"ID:   *{category.Id}*\n");
+            }
+            text.Append($"\n Page {paginatedCategories.PageIndex} of {paginatedCategories.TotalPages}");
+            return text.ToString();
         }
     }
 }
