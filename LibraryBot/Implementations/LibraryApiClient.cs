@@ -44,6 +44,19 @@ namespace LibraryBot.Implementations
             }
         }
 
+        public async Task<BookDto> GetBooksByQuery(string query, CancellationToken ct)
+        {
+            try
+            {
+                return await client.GetFromJsonAsync<BookDto>($"books/search?query={query}", ct);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, e.Message);
+                return null;
+            }
+        }
+
         public async Task<CategoryDto> GetCategoriesById(int id, CancellationToken ct)
         {
             try

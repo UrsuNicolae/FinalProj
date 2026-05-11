@@ -29,9 +29,10 @@ namespace LibraryBot
             bot.StartReceiving(HandleUpdate, HandleError, receiver, stoppingToken);
         }
 
-        private async Task HandleError(ITelegramBotClient client, Exception exception, HandleErrorSource source, CancellationToken token)
+        private Task HandleError(ITelegramBotClient client, Exception exception, HandleErrorSource source, CancellationToken token)
         {
-            throw new NotImplementedException();
+            _logger.LogError(exception, exception.Message);
+            return Task.CompletedTask;
         }
 
         private async Task HandleUpdate(ITelegramBotClient bot, Update update, CancellationToken ct)
@@ -76,6 +77,37 @@ namespace LibraryBot
                             int.TryParse(splits[1], out var id))
                         {
                             var book = await libApiClient.GetBooksById(id, ct);
+                            if (book == null)
+                            {
+                                await bot.SendMessage(
+                                    chatId: chatId,
+                                    text: "Upss book not found!",
+                                    cancellationToken: ct);
+                            }
+                            else
+                            {
+                                await bot.SendMessage(
+                                    chatId: chatId,
+                                    text: book.ToString(),
+                                    cancellationToken: ct);
+                            }
+                        }
+                        else
+                        {
+                            await bot.SendMessage(
+                                chatId: chatId,
+                                text: "Invalid command",
+                                cancellationToken: ct);
+                        }
+                        break;
+                    }
+                case string s when s.StartsWith("/search:"):
+                    {
+                        var libApiClient = scope.ServiceProvider.GetRequiredService<ILibraryApiClient>();
+                        var splits = s.Split(":", StringSplitOptions.RemoveEmptyEntries);
+                        if (splits.Count() == 2)
+                        {
+                            var book = await libApiClient.GetBooksByQuery(splits[1], ct);
                             if (book == null)
                             {
                                 await bot.SendMessage(
@@ -223,13 +255,6 @@ namespace LibraryBot
                                     cancellationToken: ct);
                             }
                         }
-                        else
-                        {
-                            await bot.SendMessage(
-                                chatId: chatId,
-                                text: "Invalid command",
-                                cancellationToken: ct);
-                        }
                         break;
                     }
                 case string s when s.StartsWith("/categories:"):
@@ -266,6 +291,62 @@ namespace LibraryBot
                         }
                         break;
                     }
+                case string s when s.StartsWith("/recomendation:"):
+                    {
+                        var libClient = scope.ServiceProvider.GetRequiredService<ILibraryApiClient>();
+                        var splits = s.Split(":", StringSplitOptions.RemoveEmptyEntries);
+                        if (splits.Count() == 2 && int.TryParse(splits[1], out var id))
+                        {
+                            var book = await libClient.GetBooksById(id, ct);
+                            if (book == null)
+                            {
+                                await bot.SendMessage(chatId: chatId, text: "Upss book not found!", cancellationToken: ct);
+                            }
+                            else
+                            {
+                                var category = await libClient.GetCategoriesById(book.CategoryId, ct);
+                                var author = await libClient.GetAuthorById(book.AuthorId, ct);
+                                var openAiService = scope.ServiceProvider.GetRequiredService<IOpenAiService>();
+                                var result = await openAiService.GetBookRecommandations(book, author, category, 5, ct);
+                                await bot.SendMessage(chatId: chatId, text: result, cancellationToken: ct);
+                            }
+
+                        }
+                        else
+                        {
+                            await bot.SendMessage(
+                                chatId: chatId,
+                                text: "Invalid command",
+                                cancellationToken: ct);
+                        }
+                        break;
+                    }
+                case string s when s.Equals("/subscribe"):
+                    {
+                        var chatRepo = scope.ServiceProvider.GetRequiredService<IChatRepository>();
+                        await chatRepo.CreateChatNotification(chatId, Tekwill.Library.Domain.Enums.NotificationType.NewBookNotification, ct);
+                        await bot.SendMessage(
+                                    chatId: chatId,
+                                    text: "Subscribed successfully!",
+                                    cancellationToken: ct);
+                        break;
+                    }
+                case string s when s.Equals("/unsubscribe"):
+                    {
+                        var chatRepo = scope.ServiceProvider.GetRequiredService<IChatRepository>();
+                        await chatRepo.DeleteChatNotification(chatId, Tekwill.Library.Domain.Enums.NotificationType.NewBookNotification, ct);
+                        await bot.SendMessage(
+                                    chatId: chatId,
+                                    text: "Unsubscribed successfully!",
+                                    cancellationToken: ct);
+                        break;
+                    }
+                default:
+                    await bot.SendMessage(
+                                chatId: chatId,
+                                text: "Invalid command",
+                                cancellationToken: ct);
+                    break;
             }
         }
     }

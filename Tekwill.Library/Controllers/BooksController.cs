@@ -40,6 +40,15 @@ public class BooksController : ControllerBase
             books.TotalPages));
     }
 
+    [HttpGet("search")]
+
+    public async Task<ActionResult<PaginatedList<BookDto>>> Get(string query, CancellationToken ct = default)
+    {
+        var book = await bookRepository.FindByText(query, ct);
+
+        return Ok(mapper.Map<BookDto>(book));
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<BookDto>> Get(int id, CancellationToken ct = default)
     {

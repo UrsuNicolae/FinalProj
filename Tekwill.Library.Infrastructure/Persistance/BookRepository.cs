@@ -32,6 +32,12 @@ namespace Tekwill.Library.Infrastructure.Persistance
             await context.SaveChangesAsync(ct);
         }
 
+        public async Task<Book> FindByText(string title, CancellationToken ct = default)
+        {
+            var book = await context.Books.FirstOrDefaultAsync(c => c.Title.Contains(title));
+            return book;
+        }
+
         public async Task<Book> GetBook(int id, CancellationToken ct = default)
         {
             var book = await context.Books.FirstOrDefaultAsync(a => a.Id == id, ct);
@@ -45,6 +51,15 @@ namespace Tekwill.Library.Infrastructure.Persistance
             var count = await context.Books.CountAsync(ct);
             var books = await context.Books.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
             return new PaginatedList<Book>(books, pageSize, (int)Math.Ceiling((decimal)count / pageSize));
+        }
+
+        public async Task<List<Book>> GetLastBooks(CancellationToken ct = default)
+        {
+            var oldDate = DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10));//should come from appsettings
+            var books = await context.Books.AsNoTracking()
+                .Where(b => b.CreatedDate >= oldDate)
+                .ToListAsync(ct);
+            return books;
         }
 
         public async Task UpdateBook(Book book, CancellationToken ct = default)

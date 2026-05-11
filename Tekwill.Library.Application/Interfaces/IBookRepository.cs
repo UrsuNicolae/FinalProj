@@ -12,5 +12,9 @@ namespace Tekwill.Library.Application.Interfaces
         Task<Book> CreateBook(Book book, CancellationToken ct = default);
         Task UpdateBook(Book book, CancellationToken ct = default);
         Task DeleteBook(int id, CancellationToken ct = default);
+
+        Task<Book> FindByText(string title, CancellationToken ct = default);
+
+        Task<List<Book>> GetLastBooks(CancellationToken ct = default);
     }
 }

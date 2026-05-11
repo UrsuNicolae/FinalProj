@@ -41,6 +41,7 @@ namespace Tekwill.Library.Infrastructure.Extensions
         public static IServiceCollection ConfigureBotRepositories(this IServiceCollection services)
         {
             services.AddScoped<IChatRepository, ChatRepository>();
+            services.AddScoped<IBookRepository, BookRepository>();
             return services;
         }
 

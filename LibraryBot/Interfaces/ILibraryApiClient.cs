@@ -9,6 +9,7 @@ namespace LibraryBot.Interfaces
     {
         Task<AuthorDto> GetAuthorById(int id, CancellationToken ct);
         Task<BookDto> GetBooksById(int id, CancellationToken ct);
+        Task<BookDto> GetBooksByQuery(string query, CancellationToken ct);
         Task<CategoryDto> GetCategoriesById(int id, CancellationToken ct);
 
         Task<PaginatedList<AuthorDto>> GetPaginatedAuthors(int pageSize, int pageIndex, CancellationToken ct);

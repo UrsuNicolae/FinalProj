@@ -19,6 +19,9 @@ namespace Tekwill.Library.Infrastructure.Data.Configurations
                 .HasMaxLength(50)
                 .IsRequired();
 
+            builder.Property(b => b.CreatedDate)
+                .HasDefaultValue(DateTime.UtcNow);
+
             builder.HasOne(b => b.Author)
                 .WithMany(a => a.Books)
                 .HasForeignKey(a => a.AuthorId)

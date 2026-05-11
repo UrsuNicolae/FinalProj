@@ -11,6 +11,8 @@ namespace Tekwill.Library.Domain.Entities
 
         public string ISBN { get; set; }
 
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
         public int AuthorId { get; set; }
         public Author Author { get; set; }
     }
