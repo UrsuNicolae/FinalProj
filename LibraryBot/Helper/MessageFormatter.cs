@@ -31,7 +31,24 @@
                 "/author:<id> - returns author by Id \n" +
                 "/authors:<pageSize>:<pageIndex> - returns paginated authors \n" +
                 "/category:<id> - returns category by Id \n" +
-                "/categories:<pageSize>:<pageIndex> - returns paginated categories \n"; 
+                "/categories:<pageSize>:<pageIndex> - returns paginated categories \n";
+        }
+
+        private static readonly char[] MarkdownV2Reserved =
+            { '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!', '\\' };
+
+        public static string EscapeMarkdownV2(object? value)
+        {
+            if (value is null) return string.Empty;
+            var text = value.ToString();
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+            var sb = new System.Text.StringBuilder(text.Length);
+            foreach (var c in text)
+            {
+                if (System.Array.IndexOf(MarkdownV2Reserved, c) >= 0) sb.Append('\\');
+                sb.Append(c);
+            }
+            return sb.ToString();
         }
     }
 }

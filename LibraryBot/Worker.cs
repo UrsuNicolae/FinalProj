@@ -318,8 +318,8 @@ namespace LibraryBot
                             {
                                 var category = await libClient.GetCategoriesById(book.CategoryId, ct);
                                 var author = await libClient.GetAuthorById(book.AuthorId, ct);
-                                var openAiService = scope.ServiceProvider.GetRequiredService<IOpenAiService>();
-                                var result = await openAiService.GetBookRecommandations(book, author, category, 5, ct);
+                                var kimiService = scope.ServiceProvider.GetRequiredService<IKimiService>();
+                                var result = await kimiService.GetBookRecommandations(book, author, category, 5, ct);
                                 await bot.SendMessage(chatId: chatId, text: result, cancellationToken: ct);
                             }
 
@@ -466,11 +466,11 @@ namespace LibraryBot
             var text = new StringBuilder("📚 *Books List*\n\n");
             foreach (var book in paginatedBooks.Items)
             {
-                text.Append($"📖    *{book.Title ?? "N/A"}*\n");
-                text.Append($"ID:   *{book.Id}*\n");
-                text.Append($"ISBN: *{book.ISBN}*\n");
+                text.Append($"📖    *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(book.Title ?? "N/A")}*\n");
+                text.Append($"ID:   *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(book.Id)}*\n");
+                text.Append($"ISBN: *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(book.ISBN)}*\n");
             }
-            text.Append($"\n Page {paginatedBooks.PageIndex} of {paginatedBooks.TotalPages}");
+            text.Append($"\n Page {LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(paginatedBooks.PageIndex)} of {LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(paginatedBooks.TotalPages)}");
             return text.ToString();
         }
 
@@ -479,11 +479,11 @@ namespace LibraryBot
             var text = new StringBuilder("✍️ *Authors List*\n\n");
             foreach (var author in paginatedAuthors.Items)
             {
-                text.Append($"🧑‍🏫    *{author.FirstName ?? "N/A"} {author.LastName ?? ""}*\n");
-                text.Append($"ID:   *{author.Id}*\n");
-                text.Append($"Books: *{author.Books?.Count() ?? 0}*\n");
+                text.Append($"🧑‍🏫    *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(author.FirstName ?? "N/A")} {LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(author.LastName ?? "")}*\n");
+                text.Append($"ID:   *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(author.Id)}*\n");
+                text.Append($"Books: *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(author.Books?.Count() ?? 0)}*\n");
             }
-            text.Append($"\n Page {paginatedAuthors.PageIndex} of {paginatedAuthors.TotalPages}");
+            text.Append($"\n Page {LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(paginatedAuthors.PageIndex)} of {LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(paginatedAuthors.TotalPages)}");
             return text.ToString();
         }
 
@@ -492,10 +492,10 @@ namespace LibraryBot
             var text = new StringBuilder("📂 *Categories List*\n\n");
             foreach (var category in paginatedCategories.Items)
             {
-                text.Append($"📂    *{category.Name ?? "N/A"}*\n");
-                text.Append($"ID:   *{category.Id}*\n");
+                text.Append($"📂    *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(category.Name ?? "N/A")}*\n");
+                text.Append($"ID:   *{LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(category.Id)}*\n");
             }
-            text.Append($"\n Page {paginatedCategories.PageIndex} of {paginatedCategories.TotalPages}");
+            text.Append($"\n Page {LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(paginatedCategories.PageIndex)} of {LibraryBot.Helper.MessageFormatter.EscapeMarkdownV2(paginatedCategories.TotalPages)}");
             return text.ToString();
         }
     }

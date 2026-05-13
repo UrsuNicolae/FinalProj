@@ -26,12 +26,11 @@ namespace LibraryBot
                 c.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                 c.DefaultRequestHeaders.Add("x-app-name", builder.Configuration["LibraryApi:AppName"]);
             });
-            builder.Services.AddScoped<IOpenAiService, OpenAiService>();
-            builder.Services.AddHttpClient<IOpenAiService, OpenAiService>(client =>
+            builder.Services.AddHttpClient<IKimiService, KimiService>(client =>
             {
-                client.BaseAddress = new Uri(builder.Configuration["OpenAi:BaseAddress"]);
+                client.BaseAddress = new Uri(builder.Configuration["Kimi:BaseAddress"]);
                 client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("Authorize", "Bearer " + builder.Configuration["OpenAi:ApiKey"]);
+                client.DefaultRequestHeaders.Add("Authorization", "Bearer " + builder.Configuration["Kimi:ApiKey"]);
             });
             builder.Services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             builder.Services.AddQuartz(q =>

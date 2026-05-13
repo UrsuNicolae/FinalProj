@@ -1,14 +1,13 @@
-﻿namespace LibraryBot.Dtos
+namespace LibraryBot.Dtos
 {
-    public class OpenAiRequest
+    public class KimiRequest
     {
         public string Model { get; set; }
         public double Temperature { get; set; }
-        public OpenAiMessage[] Messages { get; set; }
-
+        public KimiMessage[] Messages { get; set; }
     }
 
-    public class OpenAiMessage
+    public class KimiMessage
     {
         public string Role { get; set; }
         public string Content { get; set; }
